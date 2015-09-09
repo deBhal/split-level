@@ -1,0 +1,16 @@
+{
+  "name": "split-level",
+  "version": "0.0.1",
+  "description": "",
+  "main": "bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "amok --browser chrome --hot file://$PWD/index.html"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "amok": "^1.1.2",
+    "three.js": "^0.1.0"
+  }
+}
