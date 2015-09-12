@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "amok --browser chrome --hot file://$PWD/index.html"
   },
+  "homepage": "https://github.com/deBhal/split-level",
   "author": "",
   "license": "MIT",
   "dependencies": {
