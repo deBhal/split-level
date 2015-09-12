@@ -1,5 +1,6 @@
 var THREE = require( '../js/three.min.js' );
 var Assets = require( './assets.js' );
+var Shard = require( './shard.js' );
 var Engine = {}; 
 
 var mainDiv;
@@ -15,7 +16,10 @@ Engine.onAssetsReady = function() {
     this.updateDisplaySize();
     
     this.scene = new THREE.Scene();
-    this.createTestGeometry();
+    // this.createTestGeometry();
+    
+    this.testShard = new Shard( 12, 9 );
+    this.scene.add( this.testShard.generateMesh() );
     
     this.update();
 };
@@ -38,9 +42,9 @@ Engine.updateDisplaySize = function() {
     var aspectRatio = this.displayWidth / this.displayHeight;
     this.camera = new THREE.PerspectiveCamera( 45, aspectRatio, 1, 1000 );
     
-    this.camera.position.set( 5, 5, 5 );
+    this.camera.position.set( 6, 15, 15 );
     this.camera.up = new THREE.Vector3( 0, 0, 1 );
-    this.camera.lookAt( new THREE.Vector3(0, 0, 0) );
+    this.camera.lookAt( new THREE.Vector3(6, 3, 0) );
 };
 
 Engine.createTestGeometry = function() {

@@ -55,6 +55,7 @@
 
 	var THREE = __webpack_require__( 2 );
 	var Assets = __webpack_require__( 3 );
+	var Shard = __webpack_require__( 4 );
 	var Engine = {}; 
 
 	var mainDiv;
@@ -70,7 +71,10 @@
 	    this.updateDisplaySize();
 	    
 	    this.scene = new THREE.Scene();
-	    this.createTestGeometry();
+	    // this.createTestGeometry();
+	    
+	    this.testShard = new Shard( 12, 9 );
+	    this.scene.add( this.testShard.generateMesh() );
 	    
 	    this.update();
 	};
@@ -93,9 +97,9 @@
 	    var aspectRatio = this.displayWidth / this.displayHeight;
 	    this.camera = new THREE.PerspectiveCamera( 45, aspectRatio, 1, 1000 );
 	    
-	    this.camera.position.set( 5, 5, 5 );
+	    this.camera.position.set( 6, 15, 15 );
 	    this.camera.up = new THREE.Vector3( 0, 0, 1 );
-	    this.camera.lookAt( new THREE.Vector3(0, 0, 0) );
+	    this.camera.lookAt( new THREE.Vector3(6, 3, 0) );
 	};
 
 	Engine.createTestGeometry = function() {
@@ -986,8 +990,11 @@
 	Assets.loadTexture = function( key, filename ) {
 	    awaitingCompletion++;
 	    
-	    textureLoader.load( filename, function( image ) {
-	        Assets[ key ] = image;
+	    textureLoader.load( filename, function( texture ) {
+	        texture.minFilter = THREE.NearestFilter;
+	        texture.magFilter = THREE.NearestFilter;
+	        
+	        Assets[ key ] = texture;
 	        Assets.checkIfFinished();
 	    } );
 	};
@@ -1001,6 +1008,72 @@
 
 	module.exports = Assets;
 
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var THREE = __webpack_require__( 2 );
+	var Assets = __webpack_require__( 3 );
+
+	function Shard( width, height ) {
+	    this.width = width;
+	    this.height = height;
+	}
+
+	Shard.prototype.generateMesh = function() {
+	    
+	    var geometry = new THREE.Geometry();
+	    var i = 0;
+	    var unit = 1 / 8;
+	    for ( var y = 0; y < this.height; y++ ) {
+	        for ( var x = 0; x < this.width; x++ ) {
+	            geometry.vertices.push(
+	                new THREE.Vector3( x    , y    , 0 ),
+	                new THREE.Vector3( x + 1, y    , 0 ),
+	                new THREE.Vector3( x + 1, y + 1, 0 ),
+	                new THREE.Vector3( x    , y + 1, 0 )
+	            );
+	                
+	            geometry.faces.push( new THREE.Face3( i + 0, i + 1, i + 2 ) );
+	            geometry.faces.push( new THREE.Face3( i + 0, i + 2, i + 3 ) );
+	            
+	            //  Alternate between tile 0 and 1.
+	            var offset = ( ( x + y ) % 2 ) * unit;
+	            
+	            geometry.faceVertexUvs[0].push( [
+	                new THREE.Vector2( 0 + offset,    1        ),
+	                new THREE.Vector2( unit + offset, 1        ),
+	                new THREE.Vector2( unit + offset, 1 - unit )
+	            ] );
+	            
+	            geometry.faceVertexUvs[0].push( [
+	                new THREE.Vector2( 0 + offset,    1        ),
+	                new THREE.Vector2( unit + offset, 1 - unit ),
+	                new THREE.Vector2( 0 + offset,    1 - unit )
+	            ] );
+	            
+	            i += 4;
+	        }
+	    }
+	    
+	    geometry.verticesNeedUpdate = true;
+	    geometry.elementsNeedUpdate = true;
+	    geometry.uvsNeedUpdate = true;
+	    
+	    var tilemapMaterial = new THREE.MeshBasicMaterial( {
+	        map: Assets.tilemap, 
+	        side: THREE.DoubleSide,
+	    } );
+	    
+	    var mesh = new THREE.Mesh( geometry, tilemapMaterial );
+	    mesh.position.set( 0, 0, 0 );
+	    
+	    return mesh;
+
+	};
+
+	module.exports = Shard;
 
 /***/ }
 /******/ ]);

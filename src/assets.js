@@ -18,8 +18,11 @@ Assets.loadResources = function( onReady ) {
 Assets.loadTexture = function( key, filename ) {
     awaitingCompletion++;
     
-    textureLoader.load( filename, function( image ) {
-        Assets[ key ] = image;
+    textureLoader.load( filename, function( texture ) {
+        texture.minFilter = THREE.NearestFilter;
+        texture.magFilter = THREE.NearestFilter;
+        
+        Assets[ key ] = texture;
         Assets.checkIfFinished();
     } );
 };
