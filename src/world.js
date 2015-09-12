@@ -33,6 +33,21 @@ function createTestWorld() {
     ] );
     s.bake();
     
+    var s = w.createShard();
+    s.tilemap.populateFromArray( [
+        'pppppppppppp',
+        'p          p',
+        'p          p',
+        'p  g    g  p',
+        'p          p',
+        'p  gggggg  p',
+        'p g      g p',
+        'p          p',
+        'pppppppppppp',
+    ] );
+    s.bake();
+    s.move( 0, 10 );
+    
     return w;
 }
 

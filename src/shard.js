@@ -5,7 +5,12 @@ function Shard( width, height ) {
 }
 
 Shard.prototype.bake = function() {
-    Engine.scene.add( this.tilemap.generateMesh() );
+    this.mesh = this.tilemap.generateMesh();
+    Engine.scene.add( this.mesh );
+};
+
+Shard.prototype.move = function( x, y ) {
+    this.mesh.position.set( x, y, 0 );
 };
 
 module.exports = Shard;

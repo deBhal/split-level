@@ -36,9 +36,9 @@ Engine.updateDisplaySize = function() {
     var aspectRatio = this.displayWidth / this.displayHeight;
     this.camera = new THREE.PerspectiveCamera( 45, aspectRatio, 1, 1000 );
     
-    this.camera.position.set( 6, 15, 15 );
-    this.camera.up = new THREE.Vector3( 0, 0, 1 );
-    this.camera.lookAt( new THREE.Vector3(6, 3, 0) );
+    this.camera.position.set( 6, 9, 50 );
+    this.camera.up = new THREE.Vector3( 0, -1, 0 );
+    this.camera.lookAt( new THREE.Vector3( 6, 9, 0 ) );
 };
 
 Engine.createTestGeometry = function() {
