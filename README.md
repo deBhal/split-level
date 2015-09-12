@@ -3,7 +3,7 @@ Split Level
 So webpack + amok live-editting is two steps:
 
 1, Auto-webpack:
-fswatch cube.js entry.js | xargs -n1 -I{} webpack &
+fswatch src/* | xargs -n1 -I{} webpack &
 
 There's totally a way to make webpack do this for you, I jsut haven't looked it up yet.
 
