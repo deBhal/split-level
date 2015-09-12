@@ -28,6 +28,13 @@ Tile.GREEN = {
     isWall: true,
 };
 
+Tile.BRICK = {
+    uvx: 2,
+    uvy: 0,
+    symbol: '#',
+    isWall: true,
+};
+
 Tile.symbolMap = {};
 for ( var i in Tile ) {
     if ( Tile[ i ].hasOwnProperty( 'symbol' ) ) {

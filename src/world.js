@@ -48,6 +48,21 @@ function createTestWorld() {
     s.bake();
     s.move( 0, 10 );
     
+    var s = w.createShard();
+    s.tilemap.populateFromArray( [
+        '############',
+        '############',
+        '############',
+        '############',
+        '############',
+        '############',
+        '############',
+        '############',
+        '############',
+    ] );
+    s.bake();
+    s.move( 13, 0 );
+    
     return w;
 }
 

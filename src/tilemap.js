@@ -33,7 +33,8 @@ Tilemap.prototype.populateFromArray = function( source ) {
 Tilemap.prototype.generateMesh = function() {
     var geometry = new THREE.Geometry();
     var i = 0;
-    var unit = 1 / 8;
+    var unit = 1 / 8;   //  Size of a tile in the atlas
+    var hp = 1 / 512;   //  Half a pixel in the atlas
     
     for ( var y = 0; y < this.height; y++ ) {
         for ( var x = 0; x < this.width; x++ ) {
@@ -56,15 +57,15 @@ Tilemap.prototype.generateMesh = function() {
             var uvy = tile.uvy * unit;
             
             geometry.faceVertexUvs[0].push( [
-                new THREE.Vector2( uvx,        1 - uvy        ),
-                new THREE.Vector2( uvx + unit, 1 - uvy        ),
-                new THREE.Vector2( uvx + unit, 1 - uvy - unit )
+                new THREE.Vector2( uvx + hp,        1 - uvy - hp        ),
+                new THREE.Vector2( uvx - hp + unit, 1 - uvy - hp        ),
+                new THREE.Vector2( uvx - hp + unit, 1 - uvy + hp - unit )
             ] );
             
             geometry.faceVertexUvs[0].push( [
-                new THREE.Vector2( uvx,        1 - uvy        ),
-                new THREE.Vector2( uvx + unit, 1 - uvy - unit ),
-                new THREE.Vector2( uvx,        1 - uvy - unit )
+                new THREE.Vector2( uvx + hp,        1 - uvy - hp        ),
+                new THREE.Vector2( uvx - hp + unit, 1 - uvy + hp - unit ),
+                new THREE.Vector2( uvx + hp,        1 - uvy + hp - unit )
             ] );
             
             i += 4;

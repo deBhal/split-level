@@ -91,7 +91,7 @@
 	    var aspectRatio = this.displayWidth / this.displayHeight;
 	    this.camera = new THREE.PerspectiveCamera( 45, aspectRatio, 1, 1000 );
 	    
-	    this.camera.position.set( 6, 9, 50 );
+	    this.camera.position.set( 6, 9, -40 );
 	    this.camera.up = new THREE.Vector3( 0, -1, 0 );
 	    this.camera.lookAt( new THREE.Vector3( 6, 9, 0 ) );
 	};
@@ -988,7 +988,6 @@
 	    awaitingCompletion++;
 	    
 	    textureLoader.load( filename, function( texture ) {
-	        texture.minFilter = THREE.NearestFilter;
 	        texture.magFilter = THREE.NearestFilter;
 	        
 	        Assets[ key ] = texture;
@@ -1060,6 +1059,21 @@
 	    ] );
 	    s.bake();
 	    s.move( 0, 10 );
+	    
+	    var s = w.createShard();
+	    s.tilemap.populateFromArray( [
+	        '############',
+	        '############',
+	        '############',
+	        '############',
+	        '############',
+	        '############',
+	        '############',
+	        '############',
+	        '############',
+	    ] );
+	    s.bake();
+	    s.move( 13, 0 );
 	    
 	    return w;
 	}
@@ -1137,7 +1151,8 @@
 	Tilemap.prototype.generateMesh = function() {
 	    var geometry = new THREE.Geometry();
 	    var i = 0;
-	    var unit = 1 / 8;
+	    var unit = 1 / 8;   //  Size of a tile in the atlas
+	    var hp = 1 / 512;   //  Half a pixel in the atlas
 	    
 	    for ( var y = 0; y < this.height; y++ ) {
 	        for ( var x = 0; x < this.width; x++ ) {
@@ -1160,15 +1175,15 @@
 	            var uvy = tile.uvy * unit;
 	            
 	            geometry.faceVertexUvs[0].push( [
-	                new THREE.Vector2( uvx,        1 - uvy        ),
-	                new THREE.Vector2( uvx + unit, 1 - uvy        ),
-	                new THREE.Vector2( uvx + unit, 1 - uvy - unit )
+	                new THREE.Vector2( uvx + hp,        1 - uvy - hp        ),
+	                new THREE.Vector2( uvx - hp + unit, 1 - uvy - hp        ),
+	                new THREE.Vector2( uvx - hp + unit, 1 - uvy + hp - unit )
 	            ] );
 	            
 	            geometry.faceVertexUvs[0].push( [
-	                new THREE.Vector2( uvx,        1 - uvy        ),
-	                new THREE.Vector2( uvx + unit, 1 - uvy - unit ),
-	                new THREE.Vector2( uvx,        1 - uvy - unit )
+	                new THREE.Vector2( uvx + hp,        1 - uvy - hp        ),
+	                new THREE.Vector2( uvx - hp + unit, 1 - uvy + hp - unit ),
+	                new THREE.Vector2( uvx + hp,        1 - uvy + hp - unit )
 	            ] );
 	            
 	            i += 4;
@@ -1229,6 +1244,13 @@
 	    uvx: 1,
 	    uvy: 0,
 	    symbol: 'g',
+	    isWall: true,
+	};
+
+	Tile.BRICK = {
+	    uvx: 2,
+	    uvy: 0,
+	    symbol: '#',
 	    isWall: true,
 	};
 
