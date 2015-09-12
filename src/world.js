@@ -18,8 +18,21 @@ World.prototype.createShard = function() {
 
 function createTestWorld() {
     var w = new World( 120, 90, 12, 9 );
+    
     var s = w.createShard();
+    s.tilemap.populateFromArray( [
+        'pppppppppppp',
+        'p          p',
+        'p  g    g  p',
+        'p          p',
+        'p          p',
+        'p g      g p',
+        'p  gggggg  p',
+        'p          p',
+        'pppppppppppp',
+    ] );
     s.bake();
+    
     return w;
 }
 

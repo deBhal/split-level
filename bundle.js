@@ -1031,8 +1031,21 @@
 
 	function createTestWorld() {
 	    var w = new World( 120, 90, 12, 9 );
+	    
 	    var s = w.createShard();
+	    s.tilemap.populateFromArray( [
+	        'pppppppppppp',
+	        'p          p',
+	        'p  g    g  p',
+	        'p          p',
+	        'p          p',
+	        'p g      g p',
+	        'p  gggggg  p',
+	        'p          p',
+	        'pppppppppppp',
+	    ] );
 	    s.bake();
+	    
 	    return w;
 	}
 
@@ -1051,18 +1064,68 @@
 	function Shard( width, height ) {
 	    this.width = width;
 	    this.height = height;
+	    this.tilemap = new Tilemap( width, height, Tile.NOTHING );
 	}
 
 	Shard.prototype.bake = function() {
-	    Engine.scene.add( this.generateMesh() );
+	    Engine.scene.add( this.tilemap.generateMesh() );
 	};
 
-	Shard.prototype.generateMesh = function() {
+	module.exports = Shard;
+
+	var Assets = __webpack_require__( 3 );
+	var Engine = __webpack_require__( 1 );
+	var Tilemap = __webpack_require__( 6 );
+	var Tile = __webpack_require__( 7 );
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	function Tilemap( width, height, defaultTile ) {
+	    this.width = width;
+	    this.height = height;
+	    
+	    //  Create and populate data as 1D array.
+	    var size = this.width * this.height;
+	    this.data = new Array( size );
+	    defaultTile = defaultTile || Tile.NOTHING;
+	    while ( size-- )
+	        this.data[size] = defaultTile;
+	}
+
+	Tilemap.prototype.get = function( x, y ) {
+	    return this.data[ y * this.width + x ];
+	};
+
+	Tilemap.prototype.set = function( x, y, tile ) {
+	    this.data[ y * this.width + x ] = tile;
+	};
+
+	Tilemap.prototype.populateFromArray = function( source ) {
+	    for ( y = 0; y < this.height; y++ ) {
+	        for ( x = 0; x < this.width; x++ ) {
+	            var tile = Tile.symbolMap[ source[y][x] ];
+	            if ( ! tile )
+	                tile = Tile.NOTHING;
+	            
+	            this.set( x, y, tile );
+	        }
+	    }
+	};
+
+	Tilemap.prototype.generateMesh = function() {
 	    var geometry = new THREE.Geometry();
 	    var i = 0;
 	    var unit = 1 / 8;
+	    
 	    for ( var y = 0; y < this.height; y++ ) {
 	        for ( var x = 0; x < this.width; x++ ) {
+	            var tile = this.get( x, y );
+	            
+	            if ( ! tile.hasOwnProperty( 'uvx' ) )
+	                continue;
+	            
 	            geometry.vertices.push(
 	                new THREE.Vector3( x    , y    , 0 ),
 	                new THREE.Vector3( x + 1, y    , 0 ),
@@ -1073,19 +1136,19 @@
 	            geometry.faces.push( new THREE.Face3( i + 0, i + 1, i + 2 ) );
 	            geometry.faces.push( new THREE.Face3( i + 0, i + 2, i + 3 ) );
 	            
-	            //  Alternate between tile 0 and 1.
-	            var offset = ( ( x + y ) % 2 ) * unit;
+	            var uvx = tile.uvx * unit;
+	            var uvy = tile.uvy * unit;
 	            
 	            geometry.faceVertexUvs[0].push( [
-	                new THREE.Vector2( 0 + offset,    1        ),
-	                new THREE.Vector2( unit + offset, 1        ),
-	                new THREE.Vector2( unit + offset, 1 - unit )
+	                new THREE.Vector2( uvx,        1 - uvy        ),
+	                new THREE.Vector2( uvx + unit, 1 - uvy        ),
+	                new THREE.Vector2( uvx + unit, 1 - uvy - unit )
 	            ] );
 	            
 	            geometry.faceVertexUvs[0].push( [
-	                new THREE.Vector2( 0 + offset,    1        ),
-	                new THREE.Vector2( unit + offset, 1 - unit ),
-	                new THREE.Vector2( 0 + offset,    1 - unit )
+	                new THREE.Vector2( uvx,        1 - uvy        ),
+	                new THREE.Vector2( uvx + unit, 1 - uvy - unit ),
+	                new THREE.Vector2( uvx,        1 - uvy - unit )
 	            ] );
 	            
 	            i += 4;
@@ -1108,11 +1171,56 @@
 
 	};
 
-	module.exports = Shard;
+
+	module.exports = Tilemap;
 
 	var THREE = __webpack_require__( 2 );
 	var Assets = __webpack_require__( 3 );
-	var Engine = __webpack_require__( 1 );
+	var Tile = __webpack_require__( 7 );
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	Tile = {};
+
+	//  Keys:
+	//  - symbol: character used when populating a tilemap from an array of string.
+	//  - uvx, uvy: position in the tile atlas to draw
+	//  - isDeadly: if true, anything that touches this dies.
+	//  - isWall: if true, this cell is impassable.
+
+	Tile.NOTHING = {
+	    symbol: ' ',
+	};
+
+	Tile.THE_VOID = {
+	    isDeadly: true,
+	};
+
+	Tile.PURPLE = {
+	    uvx: 0,
+	    uvy: 0,
+	    symbol: 'p',
+	    isWall: true,
+	};
+	    
+	Tile.GREEN = {
+	    uvx: 1,
+	    uvy: 0,
+	    symbol: 'g',
+	    isWall: true,
+	};
+
+	Tile.symbolMap = {};
+	for ( var i in Tile ) {
+	    if ( Tile[ i ].hasOwnProperty( 'symbol' ) ) {
+	        Tile.symbolMap[ Tile[ i ].symbol ] = Tile[ i ];
+	    }
+	}
+
+	module.exports = Tile;
+
 
 /***/ }
 /******/ ]);
