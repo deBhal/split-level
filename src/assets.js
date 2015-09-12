@@ -3,22 +3,22 @@ var Assets = {};
 
 var awaitingCompletion = 0; //  Promise me?
 var loadManager = null;
-var imageLoader = null;
+var textureLoader = null;
 var readyCallback = null;
 
 Assets.loadResources = function( onReady ) {
     awaitingCompletion = [];
     readyCallback = onReady;
     loadManager = new THREE.LoadingManager();
-    imageLoader = new THREE.ImageLoader();
+    textureLoader = new THREE.TextureLoader();
     
-    Assets.loadImage( 'tilemap', '/assets/tiles.png' );
+    Assets.loadTexture( 'tilemap', '/assets/tiles.png' );
 };
 
-Assets.loadImage = function( key, filename ) {
+Assets.loadTexture = function( key, filename ) {
     awaitingCompletion++;
     
-    imageLoader.load( filename, function( image ) {
+    textureLoader.load( filename, function( image ) {
         Assets[ key ] = image;
         Assets.checkIfFinished();
     } );

@@ -45,13 +45,12 @@ Engine.updateDisplaySize = function() {
 
 Engine.createTestGeometry = function() {
     this.tilemapMaterial = new THREE.MeshBasicMaterial( {
-        // map: Assets.tilemap,
-        color: 0xffffff,
-        side: THREE.DoubleSide 
+        map: Assets.tilemap, 
+        side: THREE.DoubleSide,
     } );
-
+    
     this.geometry = new THREE.PlaneBufferGeometry( 2, 2, 1, 1 );
-
+    
     this.mesh = new THREE.Mesh( this.geometry, this.tilemapMaterial );
     this.mesh.position.set( 0, 0, 0 );
     
