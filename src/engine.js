@@ -7,17 +7,44 @@ var mainDiv;
 Engine.init = function() {
     mainDiv = document.getElementById( 'main-wrap' );
     mainDiv.innerHTML = 'Loading assets...';
-    Assets.loadResources( Engine.onAssetsReady );
+    Assets.loadResources( Engine.onAssetsReady.bind( this ) );
 };
 
 Engine.onAssetsReady = function() {
-    Engine.createCanvas();
+    this.createCanvas();
+    this.updateDisplaySize();
+    
+    this.scene = new THREE.Scene();
+    this.createTestGeometry();
+    
+    this.update();
 };
 
 Engine.createCanvas = function() {
-    Engine.renderer = new THREE.WebGLRenderer( { antialias: true } );
+    this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+    this.renderer.setPixelRatio( window.devicePixelRatio );
+    this.renderer.setClearColor( 0x002233 );
+    
     mainDiv.innerHTML = '';
-    mainDiv.appendChild( Engine.renderer.domElement );
+    mainDiv.appendChild( this.renderer.domElement );
+};
+
+Engine.updateDisplaySize = function() {
+    this.displayWidth = this.renderer.domElement.innerWidth;
+    this.displayHeight = this.renderer.domElement.innerHeight;
+    
+    this.renderer.setSize( this.displayWidth, this.displayHeight );
+    
+    var aspectRatio = this.displayWidth / this.displayHeight;
+    Engine.camera = new THREE.PerspectiveCamera( 45, aspectRatio, 1, 1000 );
+};
+
+Engine.createTestGeometry = function() {
+};
+
+Engine.update = function() {
+    this.renderer.render( this.scene, this.camera );
+    window.requestAnimationFrame( Engine.update.bind( Engine ) );
 };
 
 module.exports = Engine;
@@ -29,17 +56,6 @@ module.exports = Engine;
 
 /*
 var Shard = {
-	allLoaded: function() {
-		Shard.showCanvas();
-		Shard.setupRenderer();
-		Shard.update();
-	},
-	
-	showCanvas: function() {
-		$( '#loading' ).hide();
-		$( '#main' ).show();
-	},
-	
 	setupRenderer: function() {
 		this.renderer = new THREE.WebGLRenderer( { antialias: true } );
 		this.scene = new THREE.Scene();
