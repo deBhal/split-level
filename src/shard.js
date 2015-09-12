@@ -1,13 +1,13 @@
-var THREE = require( '../js/three.min.js' );
-var Assets = require( './assets.js' );
-
 function Shard( width, height ) {
     this.width = width;
     this.height = height;
 }
 
+Shard.prototype.bake = function() {
+    Engine.scene.add( this.generateMesh() );
+};
+
 Shard.prototype.generateMesh = function() {
-    
     var geometry = new THREE.Geometry();
     var i = 0;
     var unit = 1 / 8;
@@ -59,3 +59,7 @@ Shard.prototype.generateMesh = function() {
 };
 
 module.exports = Shard;
+
+var THREE = require( '../js/three.min.js' );
+var Assets = require( './assets.js' );
+var Engine = require( './engine.js' );

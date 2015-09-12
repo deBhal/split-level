@@ -1,7 +1,4 @@
-var THREE = require( '../js/three.min.js' );
-var Assets = require( './assets.js' );
-var Shard = require( './shard.js' );
-var Engine = {}; 
+var Engine = {};
 
 var mainDiv;
 
@@ -16,10 +13,7 @@ Engine.onAssetsReady = function() {
     this.updateDisplaySize();
     
     this.scene = new THREE.Scene();
-    // this.createTestGeometry();
-    
-    this.testShard = new Shard( 12, 9 );
-    this.scene.add( this.testShard.generateMesh() );
+    this.world = World.createTestWorld();
     
     this.update();
 };
@@ -69,3 +63,7 @@ Engine.update = function() {
 };
 
 module.exports = Engine;
+
+var THREE = require( '../js/three.min.js' );
+var Assets = require( './assets.js' );
+var World = require( './world.js' );

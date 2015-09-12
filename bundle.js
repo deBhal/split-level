@@ -53,10 +53,7 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var THREE = __webpack_require__( 2 );
-	var Assets = __webpack_require__( 3 );
-	var Shard = __webpack_require__( 4 );
-	var Engine = {}; 
+	var Engine = {};
 
 	var mainDiv;
 
@@ -71,10 +68,7 @@
 	    this.updateDisplaySize();
 	    
 	    this.scene = new THREE.Scene();
-	    // this.createTestGeometry();
-	    
-	    this.testShard = new Shard( 12, 9 );
-	    this.scene.add( this.testShard.generateMesh() );
+	    this.world = World.createTestWorld();
 	    
 	    this.update();
 	};
@@ -124,6 +118,10 @@
 	};
 
 	module.exports = Engine;
+
+	var THREE = __webpack_require__( 2 );
+	var Assets = __webpack_require__( 3 );
+	var World = __webpack_require__( 4 );
 
 /***/ },
 /* 2 */
@@ -970,7 +968,6 @@
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var THREE = __webpack_require__( 2 );
 	var Assets = {}; 
 
 	var awaitingCompletion = 0; //  Promise me?
@@ -1007,22 +1004,60 @@
 	};
 
 	module.exports = Assets;
+	var THREE = __webpack_require__( 2 );
 
 
 /***/ },
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var THREE = __webpack_require__( 2 );
-	var Assets = __webpack_require__( 3 );
+	function World( width, height, shardWidth, shardHeight ) {
+	    if ( width % shardWidth != 0 || height % shardHeight != 0 )
+	        console.log( 'Warning: World size is not a multiple of shard size!' );
+	    
+	    this.width = width;
+	    this.height = height;
+	    this.shardWidth = shardWidth;
+	    this.shardHeight = shardHeight;
+	    
+	    this.shards = [];
+	}
+
+	World.prototype.createShard = function() {
+	    var shard = new Shard( this.shardWidth, this.shardHeight );
+	    this.shards.push( shard );
+	    return shard;
+	};
+
+	function createTestWorld() {
+	    var w = new World( 120, 90, 12, 9 );
+	    var s = w.createShard();
+	    s.bake();
+	    return w;
+	}
+
+	//  Export static constructors.
+	module.exports = {
+	    createTestWorld: createTestWorld,
+	};
+
+	var Shard = __webpack_require__( 5 );
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
 
 	function Shard( width, height ) {
 	    this.width = width;
 	    this.height = height;
 	}
 
+	Shard.prototype.bake = function() {
+	    Engine.scene.add( this.generateMesh() );
+	};
+
 	Shard.prototype.generateMesh = function() {
-	    
 	    var geometry = new THREE.Geometry();
 	    var i = 0;
 	    var unit = 1 / 8;
@@ -1074,6 +1109,10 @@
 	};
 
 	module.exports = Shard;
+
+	var THREE = __webpack_require__( 2 );
+	var Assets = __webpack_require__( 3 );
+	var Engine = __webpack_require__( 1 );
 
 /***/ }
 /******/ ]);

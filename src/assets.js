@@ -1,4 +1,3 @@
-var THREE = require( '../js/three.min.js' );
 var Assets = {}; 
 
 var awaitingCompletion = 0; //  Promise me?
@@ -35,3 +34,4 @@ Assets.checkIfFinished = function() {
 };
 
 module.exports = Assets;
+var THREE = require( '../js/three.min.js' );
