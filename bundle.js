@@ -70,7 +70,7 @@
 	    this.scene = new THREE.Scene();
 	    this.world = World.createTestWorld();
 	    
-	    this.update();
+	    this.startMainLoop();
 	};
 
 	Engine.createCanvas = function() {
@@ -91,9 +91,12 @@
 	    var aspectRatio = this.displayWidth / this.displayHeight;
 	    this.camera = new THREE.PerspectiveCamera( 45, aspectRatio, 1, 1000 );
 	    
-	    this.camera.position.set( 6, 9, -40 );
+	    this.camera.position.set( 0, 0, -20 );
+	    this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+	    
+	    this.camera.position.set( 6, 2, -20 );
 	    this.camera.up = new THREE.Vector3( 0, -1, 0 );
-	    this.camera.lookAt( new THREE.Vector3( 6, 9, 0 ) );
+	    this.camera.lookAt( new THREE.Vector3( 6, 2, 0 ) );
 	};
 
 	Engine.createTestGeometry = function() {
@@ -110,11 +113,31 @@
 	    this.scene.add( this.mesh );
 	};
 
+	Engine.startMainLoop = function() {
+	    this.lastFrame = new Date().getTime();
+	    this.running = true;
+	    window.requestAnimationFrame( Engine.update.bind( this ) );
+	};
+
 	Engine.update = function() {
-	    //  Before there's anything to animate, animating seems like a waste of battery.
-	    // window.requestAnimationFrame( Engine.update.bind( this ) );
+	    if ( ! this.running )
+	        return;
 	    
+	    window.requestAnimationFrame( Engine.update.bind( this ) );
+	    
+	    var time = new Date().getTime();
+	    var elapsed = time - this.lastFrame;
+	    this.lastFrame = elapsed;
+	    
+	    if ( elapsed > 300 )
+	        elapsed = 300;
+	    
+	    this.world.update( elapsed );
 	    this.renderer.render( this.scene, this.camera );
+	};
+
+	window.stopGame = function() {
+	    Engine.running = false;
 	};
 
 	module.exports = Engine;
@@ -982,6 +1005,7 @@
 	    textureLoader = new THREE.TextureLoader();
 	    
 	    Assets.loadTexture( 'tilemap', '/assets/tiles.png' );
+	    Assets.loadTexture( 'player', '/assets/player.png' );
 	};
 
 	Assets.loadTexture = function( key, filename ) {
@@ -1010,15 +1034,17 @@
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
+	//  Note: Width, height are in *shards*.
 	function World( width, height, shardWidth, shardHeight ) {
-	    if ( width % shardWidth != 0 || height % shardHeight != 0 )
-	        console.log( 'Warning: World size is not a multiple of shard size!' );
-	    
 	    this.width = width;
 	    this.height = height;
 	    this.shardWidth = shardWidth;
 	    this.shardHeight = shardHeight;
 	    
+	    this.tileWidth = width * shardWidth;
+	    this.tileHeight = height * shardHeight;
+
+	    this.shardMap = new Array( width * height );
 	    this.shards = [];
 	}
 
@@ -1028,11 +1054,38 @@
 	    return shard;
 	};
 
+	World.prototype.getShard = function( shardX, shardY ) {
+	    if ( shardX >= 0 && shardX < this.width && shardY >= 0 && shardY < this.height )
+	        return this.shardMap[ shardY * this.width + shardX ];
+	    return null;
+	};
+
+	World.prototype.setShard = function( shardX, shardY, shard ) {
+	    this.shardMap[ shardY * this.width + shardX ] = shard;
+	};
+
+	World.prototype.getTile = function( tileX, tileY ) {
+	    var shardX = Math.floor( tileX / this.shardWidth );
+	    var shardY = Math.floor( tileY / this.shardHeight );
+	    var shard = this.getShard( shardX, shardY );
+	    
+	    if ( ! shard )
+	        return Tile.THE_VOID;
+	    
+	    return shard.getTile( tileX % this.shardWidth, tileY % this.shardHeight );
+	};
+
+	World.prototype.update = function( elapsedTime ) {
+	    for ( var i = 0; i < this.shards.length; i++ ) {
+	        this.shards[ i ].update( elapsedTime );
+	    }
+	};
+
 	function createTestWorld() {
-	    var w = new World( 120, 90, 12, 9 );
+	    var w = new World( 5, 5, 12, 9 );
 	    
 	    var s = w.createShard();
-	    s.tilemap.populateFromArray( [
+	    s.populateFromArray( [
 	        'pppppppppppp',
 	        'p          p',
 	        'p  g    g  p',
@@ -1044,36 +1097,22 @@
 	        'pppppppppppp',
 	    ] );
 	    s.bake();
-	    
+	    s.move( 0, -10 );
+
 	    var s = w.createShard();
-	    s.tilemap.populateFromArray( [
-	        'pppppppppppp',
-	        'p          p',
-	        'p          p',
-	        'p  g    g  p',
-	        'p          p',
-	        'p  gggggg  p',
-	        'p g      g p',
-	        'p          p',
-	        'pppppppppppp',
-	    ] );
-	    s.bake();
-	    s.move( 0, 10 );
-	    
-	    var s = w.createShard();
-	    s.tilemap.populateFromArray( [
+	    s.populateFromArray( [
 	        '############',
-	        '############',
-	        '############',
-	        '############',
-	        '############',
-	        '############',
-	        '############',
-	        '############',
+	        '#          #',
+	        '#          #',
+	        '#  ##      #',
+	        '#       ####',
+	        '#   pp    ##',
+	        '# P      ###',
+	        '###     ####',
 	        '############',
 	    ] );
 	    s.bake();
-	    s.move( 13, 0 );
+	    s.drop();
 	    
 	    return w;
 	}
@@ -1094,15 +1133,61 @@
 	    this.width = width;
 	    this.height = height;
 	    this.tilemap = new Tilemap( width, height, Tile.NOTHING );
+	    
+	    this.x = 0;
+	    this.y = 0;
+	    
+	    this.world = null;
+	    this.liveObjects = [];
 	}
 
 	Shard.prototype.bake = function() {
 	    this.mesh = this.tilemap.generateMesh();
+	    
+	    for ( var i = 0; i < this.liveObjects.length; i++ )
+	        this.mesh.add( this.liveObjects[i].getMesh() );
+	    
 	    Engine.scene.add( this.mesh );
 	};
 
 	Shard.prototype.move = function( x, y ) {
 	    this.mesh.position.set( x, y, 0 );
+	};
+
+	Shard.prototype.drop = function( world ) {
+	};
+
+	Shard.prototype.getTile = function( x, y ) {
+	    if ( x >= 0 && x < this.width && y >= 0 && y < this.width )
+	        return this.tilemap.get( x, y );
+	    
+	    if ( world )
+	        return world.getTile( x + this.x, y + this.y );
+	    
+	    return Tile.THE_VOID;
+	};
+
+	Shard.prototype.setTile = function( x, y ) {
+	    return this.tilemap.set( x, y );
+	};
+
+	Shard.prototype.populateFromArray = function( data ) {
+	    this.tilemap.populateFromArray( data );
+	    
+	    for ( var x = 0; x < this.width; x++ ) {
+	        for ( var y = 0; y < this.height; y++ ) {
+	            var symbol = data[y][x];
+	            
+	            if ( 'P' == symbol )  //  Player.
+	                this.liveObjects.push( new Player( this, x + 0.5, y + 1.0 ) );
+	        }
+	    }
+	};
+
+	Shard.prototype.update = function( elapsedTime ) {
+	    for ( var i = 0; i < this.liveObjects.length; i++ ) {
+	        this.liveObjects[ i ].update( elapsedTime );
+	    }
 	};
 
 	module.exports = Shard;
@@ -1111,6 +1196,7 @@
 	var Engine = __webpack_require__( 1 );
 	var Tilemap = __webpack_require__( 6 );
 	var Tile = __webpack_require__( 7 );
+	var Player = __webpack_require__( 8 );
 
 /***/ },
 /* 6 */
@@ -1137,8 +1223,8 @@
 	};
 
 	Tilemap.prototype.populateFromArray = function( source ) {
-	    for ( y = 0; y < this.height; y++ ) {
-	        for ( x = 0; x < this.width; x++ ) {
+	    for ( var y = 0; y < this.height; y++ ) {
+	        for ( var x = 0; x < this.width; x++ ) {
 	            var tile = Tile.symbolMap[ source[y][x] ];
 	            if ( ! tile )
 	                tile = Tile.NOTHING;
@@ -1203,7 +1289,6 @@
 	    mesh.position.set( 0, 0, 0 );
 	    
 	    return mesh;
-
 	};
 
 
@@ -1263,6 +1348,83 @@
 
 	module.exports = Tile;
 
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Player art temporarily borrowed from:
+	// - http://opengameart.org/content/platformer-animations
+
+	function Player( shard, x, y ) {
+	    this.x = x;
+	    this.y = y;
+	    
+	    this.quad = new QuadSprite( Assets.tilemap, 4, 1, 1 );
+	    this.quad.setFrame( 4 );
+	    this.quad.mesh.position.set( 0, 0, -1 );
+	    
+	    this.runFrame = 0;
+	}
+
+	Player.prototype.getMesh = function() {
+	    return this.quad.mesh;
+	};
+
+	Player.prototype.update = function( elapsedTime ) {
+	    this.runFrame += ( elapsedTime / 1000 );
+	    while( this.runFrame > 8 )
+	        this.runFrame -= 8;
+	    this.quad.setFrame( Math.floor( this.runFrame ) + 4 );
+	};
+
+	module.exports = Player;
+
+	var QuadSprite = __webpack_require__( 9 );
+	var Assets = __webpack_require__( 3 );
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	function QuadSprite( texture, tilesPerSide, width, height ) {
+	    this.texture = Assets.player.clone();
+	    this.tilesPerSide = tilesPerSide;
+	    this.tileSize = 1 / tilesPerSide;
+	    
+	    this.texture.wrapS = this.texture.wrapT = THREE.RepeatWrapping;
+	    this.texture.repeat.set( this.tileSize, this.tileSize );
+	    this.texture.flipY = false;
+	    this.texture.needsUpdate = true;
+	    
+	    var material = new THREE.MeshBasicMaterial( {
+	        map: this.texture,
+	        side: THREE.DoubleSide,
+	        transparent: true,
+	    } );
+	    
+	    var geometry = new THREE.PlaneBufferGeometry( width, height, 1, 1 );
+	    this.mesh = new THREE.Mesh( geometry, material );
+	    
+	    this.setFrame( 0 );
+	}
+
+	QuadSprite.prototype.setFrame = function ( frameNo ) {
+	    if ( this.frame == frameNo )
+	        return;
+	    this.frame = frameNo;
+	    
+	    this.texture.offset.x = ( frameNo % this.tilesPerSide ) * this.tileSize;
+	    this.texture.offset.y = 1 - ( 1 + Math.floor( frameNo / this.tilesPerSide ) ) * this.tileSize;
+	    
+	    this.texture.needsUpdate = true;
+	};
+
+	module.exports = QuadSprite;
+
+	var THREE = __webpack_require__( 2 );
+	var Assets = __webpack_require__( 3 );
 
 /***/ }
 /******/ ]);

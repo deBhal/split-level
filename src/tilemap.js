@@ -19,8 +19,8 @@ Tilemap.prototype.set = function( x, y, tile ) {
 };
 
 Tilemap.prototype.populateFromArray = function( source ) {
-    for ( y = 0; y < this.height; y++ ) {
-        for ( x = 0; x < this.width; x++ ) {
+    for ( var y = 0; y < this.height; y++ ) {
+        for ( var x = 0; x < this.width; x++ ) {
             var tile = Tile.symbolMap[ source[y][x] ];
             if ( ! tile )
                 tile = Tile.NOTHING;
@@ -85,7 +85,6 @@ Tilemap.prototype.generateMesh = function() {
     mesh.position.set( 0, 0, 0 );
     
     return mesh;
-
 };
 
 

@@ -1,12 +1,14 @@
+//  Note: Width, height are in *shards*.
 function World( width, height, shardWidth, shardHeight ) {
-    if ( width % shardWidth != 0 || height % shardHeight != 0 )
-        console.log( 'Warning: World size is not a multiple of shard size!' );
-    
     this.width = width;
     this.height = height;
     this.shardWidth = shardWidth;
     this.shardHeight = shardHeight;
     
+    this.tileWidth = width * shardWidth;
+    this.tileHeight = height * shardHeight;
+
+    this.shardMap = new Array( width * height );
     this.shards = [];
 }
 
@@ -16,11 +18,38 @@ World.prototype.createShard = function() {
     return shard;
 };
 
+World.prototype.getShard = function( shardX, shardY ) {
+    if ( shardX >= 0 && shardX < this.width && shardY >= 0 && shardY < this.height )
+        return this.shardMap[ shardY * this.width + shardX ];
+    return null;
+};
+
+World.prototype.setShard = function( shardX, shardY, shard ) {
+    this.shardMap[ shardY * this.width + shardX ] = shard;
+};
+
+World.prototype.getTile = function( tileX, tileY ) {
+    var shardX = Math.floor( tileX / this.shardWidth );
+    var shardY = Math.floor( tileY / this.shardHeight );
+    var shard = this.getShard( shardX, shardY );
+    
+    if ( ! shard )
+        return Tile.THE_VOID;
+    
+    return shard.getTile( tileX % this.shardWidth, tileY % this.shardHeight );
+};
+
+World.prototype.update = function( elapsedTime ) {
+    for ( var i = 0; i < this.shards.length; i++ ) {
+        this.shards[ i ].update( elapsedTime );
+    }
+};
+
 function createTestWorld() {
-    var w = new World( 120, 90, 12, 9 );
+    var w = new World( 5, 5, 12, 9 );
     
     var s = w.createShard();
-    s.tilemap.populateFromArray( [
+    s.populateFromArray( [
         'pppppppppppp',
         'p          p',
         'p  g    g  p',
@@ -32,36 +61,22 @@ function createTestWorld() {
         'pppppppppppp',
     ] );
     s.bake();
-    
+    s.move( 0, -10 );
+
     var s = w.createShard();
-    s.tilemap.populateFromArray( [
-        'pppppppppppp',
-        'p          p',
-        'p          p',
-        'p  g    g  p',
-        'p          p',
-        'p  gggggg  p',
-        'p g      g p',
-        'p          p',
-        'pppppppppppp',
-    ] );
-    s.bake();
-    s.move( 0, 10 );
-    
-    var s = w.createShard();
-    s.tilemap.populateFromArray( [
+    s.populateFromArray( [
         '############',
-        '############',
-        '############',
-        '############',
-        '############',
-        '############',
-        '############',
-        '############',
+        '#          #',
+        '#          #',
+        '#  ##      #',
+        '#       ####',
+        '#   pp    ##',
+        '# P      ###',
+        '###     ####',
         '############',
     ] );
     s.bake();
-    s.move( 13, 0 );
+    s.drop();
     
     return w;
 }

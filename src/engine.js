@@ -15,7 +15,7 @@ Engine.onAssetsReady = function() {
     this.scene = new THREE.Scene();
     this.world = World.createTestWorld();
     
-    this.update();
+    this.startMainLoop();
 };
 
 Engine.createCanvas = function() {
@@ -36,9 +36,12 @@ Engine.updateDisplaySize = function() {
     var aspectRatio = this.displayWidth / this.displayHeight;
     this.camera = new THREE.PerspectiveCamera( 45, aspectRatio, 1, 1000 );
     
-    this.camera.position.set( 6, 9, -40 );
+    this.camera.position.set( 0, 0, -20 );
+    this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
+    
+    this.camera.position.set( 6, 2, -20 );
     this.camera.up = new THREE.Vector3( 0, -1, 0 );
-    this.camera.lookAt( new THREE.Vector3( 6, 9, 0 ) );
+    this.camera.lookAt( new THREE.Vector3( 6, 2, 0 ) );
 };
 
 Engine.createTestGeometry = function() {
@@ -55,11 +58,31 @@ Engine.createTestGeometry = function() {
     this.scene.add( this.mesh );
 };
 
+Engine.startMainLoop = function() {
+    this.lastFrame = new Date().getTime();
+    this.running = true;
+    window.requestAnimationFrame( Engine.update.bind( this ) );
+};
+
 Engine.update = function() {
-    //  Before there's anything to animate, animating seems like a waste of battery.
-    // window.requestAnimationFrame( Engine.update.bind( this ) );
+    if ( ! this.running )
+        return;
     
+    window.requestAnimationFrame( Engine.update.bind( this ) );
+    
+    var time = new Date().getTime();
+    var elapsed = time - this.lastFrame;
+    this.lastFrame = elapsed;
+    
+    if ( elapsed > 300 )
+        elapsed = 300;
+    
+    this.world.update( elapsed );
     this.renderer.render( this.scene, this.camera );
+};
+
+window.stopGame = function() {
+    Engine.running = false;
 };
 
 module.exports = Engine;

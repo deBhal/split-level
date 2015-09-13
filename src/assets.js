@@ -12,6 +12,7 @@ Assets.loadResources = function( onReady ) {
     textureLoader = new THREE.TextureLoader();
     
     Assets.loadTexture( 'tilemap', '/assets/tiles.png' );
+    Assets.loadTexture( 'player', '/assets/player.png' );
 };
 
 Assets.loadTexture = function( key, filename ) {
