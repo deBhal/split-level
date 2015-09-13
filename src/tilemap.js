@@ -90,6 +90,6 @@ Tilemap.prototype.generateMesh = function() {
 
 module.exports = Tilemap;
 
-var THREE = require( '../js/three.min.js' );
+var THREE = require( 'three' );
 var Assets = require( './assets.js' );
 var Tile = require( './tile.js' );

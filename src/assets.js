@@ -34,4 +34,4 @@ Assets.checkIfFinished = function() {
 };
 
 module.exports = Assets;
-var THREE = require( '../js/three.min.js' );
+var THREE = require( 'three' );

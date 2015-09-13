@@ -92,6 +92,6 @@ window.resumeGame = function() {
 
 module.exports = Engine;
 
-var THREE = require( '../js/three.min.js' );
+var THREE = require( 'three' );
 var Assets = require( './assets.js' );
 var World = require( './world.js' );
