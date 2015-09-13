@@ -85,6 +85,11 @@ window.stopGame = function() {
     Engine.running = false;
 };
 
+window.resumeGame = function() {
+    if ( ! Engine.running )
+        Engine.startMainLoop();
+};
+
 module.exports = Engine;
 
 var THREE = require( '../js/three.min.js' );

@@ -27,10 +27,25 @@
                 width: 100vw;
                 height: 100vh;
             }
+            
+            div.button-bar {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            button {
+                padding: 5px;
+            }
 		</style>
 	</head>
 	<body>
         <div id="main-wrap">
+        </div>
+        
+        <div class="button-bar">
+            <button onClick="stopGame();">Stop Animating</button>
+            <button onClick="resumeGame();">Resume Animating</button>
         </div>
 	</body>
 

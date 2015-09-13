@@ -140,6 +140,11 @@
 	    Engine.running = false;
 	};
 
+	window.resumeGame = function() {
+	    if ( ! Engine.running )
+	        Engine.startMainLoop();
+	};
+
 	module.exports = Engine;
 
 	var THREE = __webpack_require__( 2 );
