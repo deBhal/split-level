@@ -5,7 +5,7 @@
   "main": "bundle.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "amok --browser chrome --hot file://$PWD/index.html"
+    "start": "CHROME_FLAGS=--allow-file-access-from-files amok --browser chrome --hot file://$PWD/index.html"
   },
   "homepage": "https://github.com/deBhal/split-level",
   "author": "",
