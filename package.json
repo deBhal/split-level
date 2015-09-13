@@ -13,6 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "amok": "^1.1.2",
-    "three.js": "^0.1.0"
+    "three": "^0.71.1",
+    "webpack": "^1.12.1"
   }
 }
