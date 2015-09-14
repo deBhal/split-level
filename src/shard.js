@@ -87,9 +87,17 @@ Shard.prototype.populateFromArray = function( data ) {
     }
 };
 
+Shard.prototype.getObstacleAt = function( x, y ) {
+    var tile = this.getTile( Math.floor( x ), Math.floor( y ) );
+    if ( tile && tile.type.isWall )
+        return tile;
+
+    return null;
+};
+
 Shard.prototype.update = function( elapsedTime ) {
     if ( this.world )
-        return; //  Don't update shards that are in the main world shard; they'll get updated already.
+        return; //  Don't update shards that are in the main world shard
     
     for ( var i = 0; i < this.liveObjects.length; i++ ) {
         this.liveObjects[ i ].update( elapsedTime );
