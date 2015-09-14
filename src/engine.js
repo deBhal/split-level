@@ -36,10 +36,10 @@ Engine.updateDisplaySize = function() {
     var aspectRatio = this.displayWidth / this.displayHeight;
     this.camera = new THREE.PerspectiveCamera( 45, aspectRatio, 1, 1000 );
 
-    this.camera.position.set( 0, 0, -20 );
+    this.camera.position.set( 0, 0, -40 );
     this.camera.lookAt( new THREE.Vector3( 0, 0, 0 ) );
 
-    this.camera.position.set( 6, 2, -20 );
+    this.camera.position.set( 6, 2, -40 );
     this.camera.up = new THREE.Vector3( 0, -1, 0 );
     this.camera.lookAt( new THREE.Vector3( 6, 2, 0 ) );
 };
