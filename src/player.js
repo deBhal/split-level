@@ -2,8 +2,6 @@
 // - http://opengameart.org/content/platformer-animations
 
 function Player( shard, x, y ) {
-    this.x = x;
-    this.y = y;
     this.width = 0.8;
     this.height = 1.5;
 
@@ -13,6 +11,8 @@ function Player( shard, x, y ) {
     } );
     var geometry = new THREE.PlaneBufferGeometry( this.width, this.height );
     this.mesh = new THREE.Mesh( geometry, material );
+    
+    this.setPosition( x, y );
 }
 
 Player.prototype.setPosition = function( x, y ) {

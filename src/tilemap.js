@@ -5,9 +5,9 @@ function Tilemap( width, height, defaultTile ) {
     //  Create and populate data as 1D array.
     var size = this.width * this.height;
     this.data = new Array( size );
-    defaultTile = defaultTile || Tile.THE_VOID;
+    defaultTile = defaultTile || Tile.type.THE_VOID;
     while ( size-- ) {
-        this.data[ size ] = defaultTile;
+        this.data[ size ] = Tile.new( defaultTile );
     }
 }
 
@@ -22,11 +22,9 @@ Tilemap.prototype.set = function( x, y, tile ) {
 Tilemap.prototype.populateFromArray = function( source ) {
     for ( var y = 0; y < this.height; y++ ) {
         for ( var x = 0; x < this.width; x++ ) {
-            var tile = Tile.symbolMap[ source[ y ][ x ] ];
-            if ( ! tile ) {
-                tile = Tile.NOTHING;
-            }
-
+            var type = Tile.symbolMap[ source[ y ][ x ] ] || Tile.type.NOTHING;
+            var tile = Tile.new( type );
+            
             this.set( x, y, tile );
         }
     }
@@ -43,7 +41,7 @@ Tilemap.prototype.blit = function( source, tx, ty ) {
 Tilemap.prototype.areaIsVoid = function( x, y, width, height ) {
     for ( var cx = x; cx < x + width; cx++ ) {
         for ( var cy = y; cy < y + height; cy++ ) {
-            if ( this.get( x, y ) !== Tile.THE_VOID )
+            if ( this.get( x, y ).type !== Tile.THE_VOID )
                 return false;
         }
     }
@@ -60,8 +58,9 @@ Tilemap.prototype.generateMesh = function() {
     for ( var y = 0; y < this.height; y++ ) {
         for ( var x = 0; x < this.width; x++ ) {
             var tile = this.get( x, y );
-
-            if ( ! tile.hasOwnProperty( 'uvx' ) ) {
+            var type = tile.type;
+            
+            if ( ! type.hasOwnProperty( 'uvx' ) ) {
                 continue;
             }
 
@@ -75,8 +74,8 @@ Tilemap.prototype.generateMesh = function() {
             geometry.faces.push( new THREE.Face3( i + 0, i + 1, i + 2 ) );
             geometry.faces.push( new THREE.Face3( i + 0, i + 2, i + 3 ) );
 
-            var uvx = tile.uvx * unit;
-            var uvy = tile.uvy * unit;
+            var uvx = type.uvx * unit;
+            var uvy = type.uvy * unit;
 
             geometry.faceVertexUvs[ 0 ].push( [
                 new THREE.Vector2( uvx + hp, 1 - uvy - hp ),
