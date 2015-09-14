@@ -12,6 +12,12 @@ function Player( shard, x, y ) {
     this.runFrame = 0;
 }
 
+Player.prototype.setPosition = function( x, y ) {
+    this.x = x;
+    this.y = y;
+    this.quad.mesh.position.set( x, y, -1 );
+};
+
 Player.prototype.getMesh = function() {
     return this.quad.mesh;
 };

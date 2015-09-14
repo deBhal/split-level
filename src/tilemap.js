@@ -5,7 +5,7 @@ function Tilemap( width, height, defaultTile ) {
     //  Create and populate data as 1D array.
     var size = this.width * this.height;
     this.data = new Array( size );
-    defaultTile = defaultTile || Tile.NOTHING;
+    defaultTile = defaultTile || Tile.THE_VOID;
     while ( size-- ) {
         this.data[ size ] = defaultTile;
     }
@@ -30,6 +30,25 @@ Tilemap.prototype.populateFromArray = function( source ) {
             this.set( x, y, tile );
         }
     }
+};
+
+Tilemap.prototype.blit = function( source, tx, ty ) {
+    for ( sx = 0; sx < source.width; sx++ ) {
+        for ( sy = 0; sy < source.height; sy++ ) {
+            this.set( sx + tx, sy + ty, this.get( sx, sy ) );
+        }
+    }
+};
+
+Tilemap.prototype.areaIsVoid = function( x, y, width, height ) {
+    for ( var cx = x; cx < x + width; cx++ ) {
+        for ( var cy = y; cy < y + height; cy++ ) {
+            if ( this.get( x, y ) !== Tile.THE_VOID )
+                return false;
+        }
+    }
+    
+    return true;
 };
 
 Tilemap.prototype.generateMesh = function() {

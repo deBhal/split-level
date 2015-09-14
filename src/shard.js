@@ -1,7 +1,7 @@
 function Shard( width, height ) {
     this.width = width;
     this.height = height;
-    this.tilemap = new Tilemap( width, height, Tile.NOTHING );
+    this.tilemap = new Tilemap( width, height, Tile.THE_VOID );
     
     this.x = 0;
     this.y = 0;
@@ -24,6 +24,40 @@ Shard.prototype.move = function( x, y ) {
 };
 
 Shard.prototype.drop = function( world ) {
+    this.lift();
+    
+    //  Lock into an exact tile-aligned spot...
+    this.x = Math.round( this.x );
+    this.y = Math.round( this.y );
+    
+    var mainShard = world.mainShard;
+    var mainTilemap = mainShard.tilemap;
+    
+    //  Make sure we don't overwrite anything...
+    if ( ! mainTilemap.areaIsVoid( this.x, this.y, this.width, this.height ) )
+        return false;
+    
+    //  Write my tile data in place...
+    mainTilemap.blit( this.tilemap, this.x, this.y );
+    
+    //  Move my live objects across...
+    for ( var i = 0; i < this.liveObjects.length; i++ ) {
+        var obj = this.liveObjects[ i ];
+        obj.setPosition( obj.x + this.x, obj.y + this.y );
+        mainShard.liveObjects.push( obj );
+    }
+    this.liveObjects = [];
+    
+    this.world = world;
+};
+
+Shard.prototype.lift = function() {
+    if ( ! this.world )
+        return;
+    
+    //  Todo.
+    
+    this.world = null;
 };
 
 Shard.prototype.getTile = function( x, y ) {
@@ -54,6 +88,9 @@ Shard.prototype.populateFromArray = function( data ) {
 };
 
 Shard.prototype.update = function( elapsedTime ) {
+    if ( this.world )
+        return; //  Don't update shards that are in the main world shard; they'll get updated already.
+    
     for ( var i = 0; i < this.liveObjects.length; i++ ) {
         this.liveObjects[ i ].update( elapsedTime );
     }
