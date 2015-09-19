@@ -4,6 +4,8 @@ function World( width, height ) {
     
     this.mainShard = new Shard( this.width, this.height );
     this.shards = [];
+    
+    window.World = this;
 }
 
 World.prototype.createShard = function( w, h ) {

@@ -2,24 +2,25 @@
 // - http://opengameart.org/content/platformer-animations
 
 function Player( shard, x, y ) {
-    this.width = 0.8;
-    this.height = 1.5;
     this.shard = shard;
-
+    this.size = new THREE.Vector2( 0.8, 1.5 );
+    this.velocity = new THREE.Vector2( 0, 0 );
+    this.position = new THREE.Vector2( x, y );
+    
     var material = new THREE.MeshBasicMaterial( {
         color: 0xff00ff,
         side: THREE.DoubleSide,
     } );
-    var geometry = new THREE.PlaneBufferGeometry( this.width, this.height );
+    var geometry = new THREE.PlaneBufferGeometry( this.size.x, this.size.y );
     this.mesh = new THREE.Mesh( geometry, material );
     
     this.setPosition( x, y - 3 );
 }
 
 Player.prototype.setPosition = function( x, y ) {
-    this.x = x;
-    this.y = y;
-    this.mesh.position.set( x, y - ( this.height / 2 ), -1 );
+    this.position.x = x;
+    this.position.y = y;
+    this.mesh.position.set( x, y - ( this.size.y / 2 ), -1 );
 };
 
 Player.prototype.getMesh = function() {
@@ -27,11 +28,20 @@ Player.prototype.getMesh = function() {
 };
 
 Player.prototype.update = function( elapsedTime ) {
-    //  Figure out what (if anything) is under my feet.
-    var underfoot = this.shard.getObstacleAt( this.x, this.y + 0.1 );
-    if ( ! underfoot ) {
-        this.setPosition( this.x, this.y + 0.1 );
-    }
+    return;
+    
+    //  Figure out what (if anything) is under my feet. Fall if nothing.
+    var underfoot = this.shard.getObstacleAtPoint( this.position.x, this.position.y + 0.01 );
+    if ( ! underfoot )
+        this.velocity.y += elapsedTime * 0.01;
+    
+    //  Apply terminal velocity to downwards momentum
+    if ( this.velocity.y > 1.0 )
+        this.velocity.y = 1.0;
+    
+    //  Move.
+    /*var newPosition = */this.shard.rectCollide( this.position, this.size, this.velocity );
+    //this.setPosition( newPosition.x, newPosition.y );
 };
 
 module.exports = Player;

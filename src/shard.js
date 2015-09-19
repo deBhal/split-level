@@ -95,6 +95,8 @@ Shard.prototype.getObstacleAt = function( x, y ) {
     return null;
 };
 
+
+
 Shard.prototype.update = function( elapsedTime ) {
     if ( this.world )
         return; //  Don't update shards that are in the main world shard
@@ -111,3 +113,4 @@ var Engine = require( './engine.js' );
 var Tilemap = require( './tilemap.js' );
 var Tile = require( './tile.js' );
 var Player = require( './player.js' );
+var THREE = require( 'three' );

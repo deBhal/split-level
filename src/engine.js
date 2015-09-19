@@ -95,6 +95,6 @@ window.resumeGame = function() {
 
 module.exports = Engine;
 
-var THREE = require( 'three' );
+var THREE = window.THREE = require( 'three' );
 var Assets = require( './assets.js' );
 var World = require( './world.js' );
