@@ -14,7 +14,7 @@ Shard.prototype.bake = function() {
     this.mesh = this.tilemap.generateMesh();
     
     for ( var i = 0; i < this.liveObjects.length; i++ ) {
-        this.mesh.add( this.liveObjects[i].getMesh() );
+        this.mesh.add( this.liveObjects[i].mesh );
     }
     
     Engine.scene.add( this.mesh );

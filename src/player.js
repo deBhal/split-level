@@ -2,27 +2,20 @@
 // - http://opengameart.org/content/platformer-animations
 
 function Player( shard, position ) {
-    this.shard = shard;
-    this.size = new THREE.Vector2( 0.8, 1.5 );
+    LiveObject.call( this, shard, position, new THREE.Vector2( 0.8, 1.5 ) );
     this.velocity = new THREE.Vector2( 0, 0 );
-    
+}
+
+var LiveObject = require( './liveobject.js' );
+Player.prototype = Object.create( LiveObject.prototype );
+
+Player.prototype.createMesh = function() {
     var material = new THREE.MeshBasicMaterial( {
         color: 0xff00ff,
         side: THREE.DoubleSide,
     } );
     var geometry = new THREE.PlaneBufferGeometry( this.size.x, this.size.y );
-    this.mesh = new THREE.Mesh( geometry, material );
-    
-    this.setPosition( position );
-}
-
-Player.prototype.setPosition = function( position ) {
-    this.position = position;
-    this.mesh.position.set( this.position.x, this.position.y - ( this.size.y / 2 ), -0.01 );
-};
-
-Player.prototype.getMesh = function() {
-    return this.mesh;
+    return new THREE.Mesh( geometry, material );
 };
 
 Player.prototype.update = function( elapsedTime ) {
