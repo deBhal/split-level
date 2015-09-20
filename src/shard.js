@@ -13,8 +13,9 @@ function Shard( width, height ) {
 Shard.prototype.bake = function() {
     this.mesh = this.tilemap.generateMesh();
     
-    for ( var i = 0; i < this.liveObjects.length; i++ )
+    for ( var i = 0; i < this.liveObjects.length; i++ ) {
         this.mesh.add( this.liveObjects[i].getMesh() );
+    }
     
     Engine.scene.add( this.mesh );
 };
@@ -43,7 +44,7 @@ Shard.prototype.drop = function( world ) {
     //  Move my live objects across...
     for ( var i = 0; i < this.liveObjects.length; i++ ) {
         var obj = this.liveObjects[ i ];
-        obj.setPosition( obj.x + this.x, obj.y + this.y );
+        obj.setPosition( new THREE.Vector2( obj.position.x + this.x, obj.position.y + this.y ) );
         mainShard.liveObjects.push( obj );
     }
     this.liveObjects = [];
@@ -82,7 +83,10 @@ Shard.prototype.populateFromArray = function( data ) {
             var symbol = data[y][x];
             
             if ( 'P' == symbol )  //  Player.
-                this.liveObjects.push( new Player( this, x + 0.5, y + 1.0 ) );
+                this.liveObjects.push( new Player( this, new THREE.Vector2( x + 0.5, y + 1.0 ) ) );
+            
+            if ( 'M' == symbol )  //  Moving platform.
+                this.liveObjects.unshift( new MovingPlatform( this, new THREE.Vector2( x, y ), new THREE.Vector2( 2, 0.5 ) ) );
         }
     }
 };
@@ -95,7 +99,24 @@ Shard.prototype.getObstacleAt = function( x, y ) {
     return null;
 };
 
-
+Shard.prototype.lineCollide = function( start, target ) {
+    //  Tilemap collision...
+    var closestCollision = this.tilemap.lineCollide( start, vector );
+    if ( closestCollision )
+        target = closestCollision.position;
+    
+    //  Object collisions...
+    for ( var i = 0; i < this.liveObjects.length; i++ ) {
+        var liveObject = this.liveObjects[ i ];
+        var objectCollision = liveObject.lineCollide( start, target );
+        if ( objectCollision ) {
+            closestCollision = objectCollision;
+            target = objectCollision.position;
+        }
+    }
+    
+    return tileCollision;
+};
 
 Shard.prototype.update = function( elapsedTime ) {
     if ( this.world )
@@ -113,4 +134,5 @@ var Engine = require( './engine.js' );
 var Tilemap = require( './tilemap.js' );
 var Tile = require( './tile.js' );
 var Player = require( './player.js' );
+var MovingPlatform = require( './movingplatform.js' );
 var THREE = require( 'three' );

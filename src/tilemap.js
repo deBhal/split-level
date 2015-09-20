@@ -108,10 +108,7 @@ Tilemap.prototype.generateMesh = function() {
     return mesh;
 };
 
-Tilemap.prototype.lineCollide = function( start, vector, outCollisionPoint ) {
-    var xto = start.x + vector.x;
-    var yto = start.y + vector.y;
-    
+Tilemap.prototype.lineCollide = function( start, target ) {
     /*  //Calculate direction vector
         float dirX = (xto - xfrom);
         float dirY = (yto - yfrom);
@@ -122,6 +119,7 @@ Tilemap.prototype.lineCollide = function( start, vector, outCollisionPoint ) {
         dirX /= length;
         dirY /= length; */
     
+    var vector = new THREE.Vector2( target.x - start.x, target.y - start.y );
     var length = vector.length();
     var dirX = vector.x / length;
     var dirY = vector.y / length;
@@ -143,8 +141,8 @@ Tilemap.prototype.lineCollide = function( start, vector, outCollisionPoint ) {
     /*  endX = xto / TILEWIDTH;
         endY = yto / TILEHEIGHT;    */
     
-    var endX = Math.floor( xto );
-    var endY = Math.floor( yto );
+    var endX = Math.floor( target.x );
+    var endY = Math.floor( target.y );
     
     /*  //stepX: Determine in what way do we move between cells
         //tMaxX: the distance in terms of vector(dirX,dirY) to the next vertical line
@@ -202,9 +200,9 @@ Tilemap.prototype.lineCollide = function( start, vector, outCollisionPoint ) {
             return true;
         }   */
     
-    if ( this.get( X, Y ).type.isWall ) {
-        return start;
-    }
+    var thisTile = this.get( X, Y );
+    if ( thisTile.type.isWall )
+        return new Collision( start, thisTile, Collision.dir.Both );
     
     /*  //Scan the cells along the line between 'from' and 'to'
         while (X != endX || Y !=endY){  */
@@ -224,9 +222,11 @@ Tilemap.prototype.lineCollide = function( start, vector, outCollisionPoint ) {
         if ( tMaxX < tMaxY ) {
             tMaxX += tDeltaX;
             X += stepX;
-            if ( this.get( X, Y ).type.isWall ) {
+            thisTile = this.get( X, Y );
+            if ( thisTile.type.isWall ) {
                 var collisionLength = ( X + blkX - start.x ) / dirX;
-                return new THREE.Vector2( start.x + dirX * collisionLength, start.y + dirY * collisionLength );
+                var point = new THREE.Vector2( start.x + dirX * collisionLength, start.y + dirY * collisionLength );
+                return new Collision( point, thisTile, Collision.dir.Horizontal );
             }
         } else {
         
@@ -240,9 +240,11 @@ Tilemap.prototype.lineCollide = function( start, vector, outCollisionPoint ) {
             
             tMaxY += tDeltaY;
             Y += stepY;
-            if ( this.get( X, Y ).type.isWall ) {
+            thisTile = this.get( X, Y );
+            if ( thisTile.type.isWall ) {
                 var collisionLength = ( Y + blkY - start.y ) / dirY;
-                return new THREE.Vector2( start.x + dirX * collisionLength, start.y + dirY * collisionLength );
+                var point = new THREE.Vector2( start.x + dirX * collisionLength, start.y + dirY * collisionLength );
+                return new Collision( point, thisTile, Collision.dir.Vertical );
             }
         }
         
@@ -261,3 +263,4 @@ module.exports = Tilemap;
 var THREE = require( 'three' );
 var Assets = require( './assets.js' );
 var Tile = require( './tile.js' );
+var Collision = require( './collision.js' );

@@ -1,11 +1,10 @@
 // Player art temporarily borrowed from:
 // - http://opengameart.org/content/platformer-animations
 
-function Player( shard, x, y ) {
+function Player( shard, position ) {
     this.shard = shard;
     this.size = new THREE.Vector2( 0.8, 1.5 );
     this.velocity = new THREE.Vector2( 0, 0 );
-    this.position = new THREE.Vector2( x, y );
     
     var material = new THREE.MeshBasicMaterial( {
         color: 0xff00ff,
@@ -14,13 +13,12 @@ function Player( shard, x, y ) {
     var geometry = new THREE.PlaneBufferGeometry( this.size.x, this.size.y );
     this.mesh = new THREE.Mesh( geometry, material );
     
-    this.setPosition( x, y - 3 );
+    this.setPosition( position );
 }
 
-Player.prototype.setPosition = function( x, y ) {
-    this.position.x = x;
-    this.position.y = y;
-    this.mesh.position.set( x, y - ( this.size.y / 2 ), -1 );
+Player.prototype.setPosition = function( position ) {
+    this.position = position;
+    this.mesh.position.set( this.position.x, this.position.y - ( this.size.y / 2 ), -0.01 );
 };
 
 Player.prototype.getMesh = function() {
@@ -40,7 +38,7 @@ Player.prototype.update = function( elapsedTime ) {
         this.velocity.y = 1.0;
     
     //  Move.
-    /*var newPosition = */this.shard.rectCollide( this.position, this.size, this.velocity );
+    /*var newPosition = */ //this.shard.rectCollide( this.position, this.size, this.velocity );
     //this.setPosition( newPosition.x, newPosition.y );
 };
 
